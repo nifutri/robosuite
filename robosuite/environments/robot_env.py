@@ -8,7 +8,8 @@ from robosuite.environments.base import MujocoEnv
 from robosuite.robots import ROBOT_CLASS_MAPPING
 from robosuite.utils.mjcf_utils import IMAGE_CONVENTION_MAPPING
 from robosuite.utils.observables import Observable, sensor
-
+from robosuite.controllers import reset_controllers
+import pdb
 
 class RobotEnv(MujocoEnv):
     """
@@ -125,6 +126,7 @@ class RobotEnv(MujocoEnv):
         robots,
         env_configuration="default",
         base_types="default",
+        mount_types="default",
         controller_configs=None,
         initialization_noise=None,
         use_camera_obs=True,
@@ -203,6 +205,8 @@ class RobotEnv(MujocoEnv):
         # Robot configurations -- update from subclass configs
         if robot_configs is None:
             robot_configs = [{} for _ in range(self.num_robots)]
+            
+        # pdb.set_trace()
         self.robot_configs = [
             dict(
                 **{
@@ -216,8 +220,10 @@ class RobotEnv(MujocoEnv):
             )
             for idx, robot_config in enumerate(robot_configs)
         ]
+        
 
         # Run superclass init
+        
         super().__init__(
             has_renderer=has_renderer,
             has_offscreen_renderer=self.has_offscreen_renderer,
@@ -522,10 +528,12 @@ class RobotEnv(MujocoEnv):
         self._action_dim = 0
 
         # Reset robot and update action space dimension along the way
+        print("resetting robots")
         for robot in self.robots:
+            # import pdb; pdb.set_trace() # this is where OSC controller breaks
             robot.reset(deterministic=self.deterministic_reset)
             self._action_dim += robot.action_dim
-
+        print("done resetting robots")
         # Update cameras if appropriate
         if self.use_camera_obs:
             temp_names = []
@@ -578,6 +586,7 @@ class RobotEnv(MujocoEnv):
             AssertionError: [Invalid action dimension]
         """
         # Verify that the action is the correct dimension
+        
         assert len(action) == self.action_dim, "environment got invalid action dimension -- expected {}, got {}".format(
             self.action_dim, len(action)
         )
@@ -596,6 +605,7 @@ class RobotEnv(MujocoEnv):
         # Loop through robots and instantiate Robot object for each
         for idx, (name, config) in enumerate(zip(self.robot_names, self.robot_configs)):
             # Create the robot instance
+            # pdb.set_trace()
             self.robots[idx] = ROBOT_CLASS_MAPPING[name](robot_type=name, idn=idx, **config)
             # Now, load the robot models
             self.robots[idx].load_model()

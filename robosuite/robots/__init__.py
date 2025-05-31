@@ -3,6 +3,10 @@ from .mobile_robot import MobileRobot
 from .wheeled_robot import WheeledRobot
 from .legged_robot import LeggedRobot
 
+from .manipulator import Manipulator
+from .single_arm import SingleArm
+from .bimanual import Bimanual
+
 from robosuite.models.robots.robot_model import REGISTERED_ROBOTS
 
 from robosuite.utils.log_utils import ROBOSUITE_DEFAULT_LOGGER
@@ -32,6 +36,15 @@ ROBOT_CLASS_MAPPING = {
     "PandaDexLH": FixedBaseRobot,
     "XArm7": FixedBaseRobot,
 }
+# ROBOT_CLASS_MAPPING = {
+#     "Baxter": Bimanual,
+#     "IIWA": SingleArm,
+#     "Jaco": SingleArm,
+#     "Kinova3": SingleArm,
+#     "Panda": SingleArm,
+#     "Sawyer": SingleArm,
+#     "UR5e": SingleArm,
+# }
 
 target_type_mapping = {
     "FixedBaseRobot": FixedBaseRobot,

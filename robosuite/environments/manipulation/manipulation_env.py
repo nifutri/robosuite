@@ -7,7 +7,7 @@ from robosuite.models.grippers import GripperModel
 from robosuite.robots import ROBOT_CLASS_MAPPING, FixedBaseRobot, MobileRobot
 from robosuite.robots.legged_robot import LeggedRobot
 from robosuite.utils.observables import Observable, sensor
-
+from robosuite.robots import Manipulator, ROBOT_CLASS_MAPPING
 
 class ManipulationEnv(RobotEnv):
     """
@@ -129,6 +129,7 @@ class ManipulationEnv(RobotEnv):
         robots,
         env_configuration="default",
         controller_configs=None,
+        mount_types="default",
         base_types="default",
         gripper_types="default",
         initialization_noise=None,
@@ -153,6 +154,7 @@ class ManipulationEnv(RobotEnv):
         renderer_config=None,
         seed=None,
     ):
+        # import pdb; pdb.set_trace()
         # Robot info
         robots = list(robots) if type(robots) is list or type(robots) is tuple else [robots]
         num_robots = len(robots)
@@ -173,6 +175,7 @@ class ManipulationEnv(RobotEnv):
             robots=robots,
             env_configuration=env_configuration,
             controller_configs=controller_configs,
+            mount_types=mount_types,
             base_types=base_types,
             initialization_noise=initialization_noise,
             use_camera_obs=use_camera_obs,

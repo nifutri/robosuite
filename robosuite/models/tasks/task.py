@@ -72,6 +72,7 @@ class Task(MujocoWorldBase):
             self.mujoco_objects = [mujoco_objects] if isinstance(mujoco_objects, MujocoObject) else mujoco_objects
 
         # Merge all models
+        
         self.merge_arena(self.mujoco_arena)
         for mujoco_robot in self.mujoco_robots:
             self.merge_robot(mujoco_robot)
@@ -83,6 +84,7 @@ class Task(MujocoWorldBase):
         self._classes_to_ids = None
         self._geom_ids_to_classes = None
         self._site_ids_to_classes = None
+        
 
     def merge_robot(self, mujoco_robot):
         """
@@ -144,9 +146,11 @@ class Task(MujocoWorldBase):
             if body.attrib.get("name") not in exclude_bodies
         ]
         models.extend(top_level_bodies)
+        
 
         # Parse all mujoco models from robots and objects
         for model in models:
+            print("model", model)
             if isinstance(model, str):
                 body_name = model
                 visual_group_number = 1
@@ -169,6 +173,8 @@ class Task(MujocoWorldBase):
             # Add entry to mapping dicts
 
             # Instances should be unique
+            
+            # print("inst", inst)
             assert inst not in self._instances_to_ids, f"Instance {inst} already registered; should be unique"
             self._instances_to_ids[inst] = {}
 
@@ -188,6 +194,8 @@ class Task(MujocoWorldBase):
                     assert idn not in ids_to_inst, f"ID {idn} already registered; should be unique"
                     ids_to_inst[idn] = inst
                     ids_to_cls[idn] = cls
+
+        print("done generating id mappings")
 
     @property
     def geom_ids_to_instances(self):

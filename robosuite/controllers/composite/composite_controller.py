@@ -11,7 +11,7 @@ from robosuite.models.robots.robot_model import RobotModel
 from robosuite.utils.binding_utils import MjSim
 from robosuite.utils.ik_utils import IKSolver, get_nullspace_gains
 from robosuite.utils.log_utils import ROBOSUITE_DEFAULT_LOGGER
-
+import pdb
 REGISTERED_COMPOSITE_CONTROLLERS_DICT = {}
 
 
@@ -72,6 +72,7 @@ class CompositeController:
     def _init_controllers(self):
         for part_name in self.part_controller_config.keys():
             controller_params = self.part_controller_config[part_name]
+            
             self.part_controllers[part_name] = controller_factory(
                 part_name=part_name,
                 controller_type=self.part_controller_config[part_name]["type"],

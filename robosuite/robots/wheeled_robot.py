@@ -8,7 +8,7 @@ import robosuite.utils.transform_utils as T
 from robosuite.controllers import composite_controller_factory
 from robosuite.robots.mobile_robot import MobileRobot
 from robosuite.utils.log_utils import ROBOSUITE_DEFAULT_LOGGER
-
+import pdb
 
 class WheeledRobot(MobileRobot):
     """
@@ -27,6 +27,7 @@ class WheeledRobot(MobileRobot):
         control_freq=20,
         lite_physics=True,
     ):
+        # pdb.set_trace()
         super().__init__(
             robot_type=robot_type,
             idn=idn,

@@ -12,7 +12,7 @@ from robosuite.renderers.base import load_renderer_config
 from robosuite.renderers.viewer import OpenCVViewer
 from robosuite.utils import SimulationError, XMLError
 from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
-
+import pdb
 REGISTERED_ENVS = {}
 
 
@@ -293,6 +293,7 @@ class MujocoEnv(metaclass=EnvMeta):
 
         # update sites as needed
         self.update_state()
+        # pdb.set_trace()
 
         if self.viewer is not None and self.renderer != "mujoco":
             self.viewer.reset()

@@ -43,13 +43,17 @@ class FixedBaseRobot(Robot):
         Loads controller to be used for dynamic trajectories
         """
         # Flag for loading urdf once (only applicable for IK controllers)
+        # import pdb; pdb.set_trace()
+        print("self.composite_controller_config", self.composite_controller_config)
         self.composite_controller = composite_controller_factory(
             type=self.composite_controller_config.get("type", "BASIC"),
             sim=self.sim,
             robot_model=self.robot_model,
             grippers={self.get_gripper_name(arm): self.gripper[arm] for arm in self.arms},
         )
+        
         self._load_arm_controllers()
+        
 
         self._postprocess_part_controller_config()
         self.composite_controller.load_controller_config(

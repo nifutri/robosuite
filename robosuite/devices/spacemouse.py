@@ -100,7 +100,7 @@ def convert(b1, b2):
     """
     return scale_to_control(to_int16(b1, b2))
 
-
+import pdb
 class SpaceMouse(Device):
     """
     A minimalistic driver class for SpaceMouse with HID library.
@@ -129,7 +129,12 @@ class SpaceMouse(Device):
         print("Opening SpaceMouse device")
         self.vendor_id = vendor_id
         self.product_id = product_id
+        self.product_id = 50734
+        self.vendor_id = 9583
+        # pdb.set_trace()
+        self.is_acting_agent = False
         self.device = hid.device()
+        
         try:
             self.device.open(self.vendor_id, self.product_id)  # SpaceMouse
         except OSError as e:
@@ -181,7 +186,8 @@ class SpaceMouse(Device):
 
         print("")
         print_command("Control", "Command")
-        print_command("Right button", "reset simulation")
+        # print_command("Right button", "reset simulation")
+        print_command("Right button", "Switch between human and robot control")
         print_command("Left button (hold)", "close gripper")
         print_command("Move mouse laterally", "move arm horizontally in x-y plane")
         print_command("Move mouse vertically", "move arm vertically")
@@ -309,9 +315,14 @@ class SpaceMouse(Device):
 
                     # right button is for reset
                     if d[1] == 2:
-                        self._reset_state = 1
-                        self._enabled = False
-                        self._reset_internal_state()
+                        if self.is_acting_agent is True:
+                            self.is_acting_agent = False
+                        else:
+                            self.is_acting_agent = True
+
+                        # self._reset_state = 1
+                        # self._enabled = False
+                        # self._reset_internal_state()
 
     @property
     def control(self):
@@ -357,6 +368,12 @@ class SpaceMouse(Device):
                 self.active_arm_index = (self.active_arm_index + 1) % len(self.all_robot_arms[self.active_robot])
             elif key.char == "=":
                 self.active_robot = (self.active_robot + 1) % self.num_robots
+            # elif key.char == 'space':
+            #     if self.is_acting_agent is True:
+            #         self.is_acting_agent = False
+            #     else:
+            #         self.is_acting_agent = True
+            #     import pdb; pdb.set_trace()
 
         except AttributeError as e:
             pass

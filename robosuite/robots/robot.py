@@ -71,7 +71,18 @@ class Robot(object):
         else:
             self.composite_controller_config = load_composite_controller_config(robot=robot_type)
 
+
+        # self.composite_controller_config = {'type': 'HYBRID_MOBILE_BASE', 'body_parts': {'right': {'type': 'OSC_POSE', 'input_max': 1, 'input_min': -1, 'output_max': [0.05, 0.05, 0.05, 0.5, 0.5, 0.5], 'output_min': [-0.05, -0.05, -0.05, -0.5, -0.5, -0.5], 'kp': 150, 'damping_ratio': 1, 'impedance_mode': 'fixed', 'kp_limits': [0, 300], 'damping_ratio_limits': [0, 10], 'position_limits': None, 'orientation_limits': None, 'uncouple_pos_ori': True, 'input_type': 'delta', 'input_ref_frame': 'base', 'interpolation': None, 'ramp_ratio': 0.2, 'gripper': {'type': 'GRIP'}}, 'torso': {'type': 'JOINT_POSITION', 'interpolation': 'null', 'kp': 2000}, 'base': {'type': 'JOINT_VELOCITY', 'interpolation': 'null'}}}
+
         self.part_controller_config = copy.deepcopy(self.composite_controller_config.get("body_parts", {}))
+        # import pdb; pdb.set_trace()
+
+        # robosuite v0.2 has 
+        # {'type': 'OSC_POSE', 'input_max': 1, 'input_min': -1, 'output_max': [0.05, 0.05, 0.05, 0.5, 0.5, 0.5], 'output_min': [-0.05, -0.05, -0.05, -0.5, -0.5, -0.5], 'kp': 150, 'damping': 1, 'impedance_mode': 'fixed', 'kp_limits': [0, 300], 'damping_limits': [0, 10], 'position_limits': None, 'orientation_limits': None, 'uncouple_pos_ori': True, 'control_delta': False, 'interpolation': None, 'ramp_ratio': 0.2}
+        # whereas robosuite 1.5 has
+        # self.composite_controller_config = {'type': 'HYBRID_MOBILE_BASE', 'body_parts': {'right': {'type': 'OSC_POSE', 'input_max': 1, 'input_min': -1, 'output_max': [0.05, 0.05, 0.05, 0.5, 0.5, 0.5], 'output_min': [-0.05, -0.05, -0.05, -0.5, -0.5, -0.5], 'kp': 150, 'damping_ratio': 1, 'impedance_mode': 'fixed', 'kp_limits': [0, 300], 'damping_ratio_limits': [0, 10], 'position_limits': None, 'orientation_limits': None, 'uncouple_pos_ori': True, 'input_type': 'delta', 'input_ref_frame': 'base', 'interpolation': None, 'ramp_ratio': 0.2, 'gripper': {'type': 'GRIP'}}, 'torso': {'type': 'JOINT_POSITION', 'interpolation': 'null', 'kp': 2000}, 'base': {'type': 'JOINT_VELOCITY', 'interpolation': 'null'}}}
+
+
 
         self.gripper = self._input2dict(None)
         self.gripper_type = self._input2dict(gripper_type)
@@ -859,6 +870,7 @@ class Robot(object):
             # Assert that the controller config is a dict file:
             #             NOTE: "type" must be one of: {JOINT_POSITION, JOINT_TORQUE, JOINT_VELOCITY,
             #                                           OSC_POSITION, OSC_POSE, IK_POSE}
+            # import pdb; pdb.set_trace()
             assert (
                 type(self.part_controller_config[arm]) == dict
             ), "Inputted controller config must be a dict! Instead, got type: {}".format(
