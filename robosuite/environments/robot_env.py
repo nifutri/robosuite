@@ -223,7 +223,7 @@ class RobotEnv(MujocoEnv):
         
 
         # Run superclass init
-        
+        # seed = 0
         super().__init__(
             has_renderer=has_renderer,
             has_offscreen_renderer=self.has_offscreen_renderer,

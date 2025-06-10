@@ -21,9 +21,9 @@
         <material name="Shell005_001_001_002_001" specular="0.5" shininess="0.45" rgba="1.000000 1.000000 1.000000 1.000000"/>
     </asset>
     <actuator>
-        <velocity ctrllimited="true" ctrlrange="-1.00 1.00" joint="joint_mobile_forward" kv="1000" name="actuator_mobile_forward" forcelimited="true" forcerange="-600 600"/>
-		<velocity ctrllimited="true" ctrlrange="-1.00 1.00" joint="joint_mobile_side" kv="1000" name="actuator_mobile_side" forcelimited="true" forcerange="-600 600"/>
-		<velocity ctrllimited="true" ctrlrange="-1.50 1.50" joint="joint_mobile_yaw" kv="1500" name="actuator_mobile_yaw" forcelimited="true" forcerange="-600 600"/>
+        <velocity ctrllimited="true" ctrlrange="-1.00 1.00" joint="joint_mobile_forward" kv="1000" name="actuator_mobile_forward" forcelimited="true" forcerange="-1e-12 1e-12"/>
+		<velocity ctrllimited="true" ctrlrange="-1.00 1.00" joint="joint_mobile_side" kv="1000" name="actuator_mobile_side" forcelimited="true" forcerange="-1e-12 1e-12"/>
+		<velocity ctrllimited="true" ctrlrange="-1.50 1.50" joint="joint_mobile_yaw" kv="1500" name="actuator_mobile_yaw" forcelimited="true" forcerange="-1e-12 1e-12"/>
 		<motor ctrllimited="true" ctrlrange="-100000.0 100000.0" joint="joint_torso_height" name="actuator_torso_height" forcelimited="false"/>
 	</actuator>
     <worldbody>
@@ -50,12 +50,12 @@
                 <geom friction="0.95 0.3 0.1" type="mesh" mesh="omron_6_vis" conaffinity="0" contype="0" group="1" material="Opaque(202,209,236)"/>
                 <geom friction="0.95 0.3 0.1" type="mesh" mesh="omron_7_vis" conaffinity="0" contype="0" group="1" material="Opaque(63,63,63)"/>
 
-                <geom pos="0 0 0" size="0.35 0.25 0.19" type="box" name="pedestal_feet_col" density="10"/>
+                <geom pos="0 0 0" size="0.35 0.25 0.19" type="box" name="pedestal_feet_col" density="100000"/>
             </body>
 
-            <joint name="joint_mobile_forward" pos="-0.21 0 0" axis="0 1 0" type="slide" limited="false" damping="0" armature="0.0" frictionloss="250"/>
-			<joint name="joint_mobile_side" pos="-0.21 0 0" axis="1 0 0" type="slide" limited="false" damping="0" armature="0.0" frictionloss="250"/>
-			<joint name="joint_mobile_yaw" pos="-0.21 0 0" axis="0 0 1" type="hinge" limited="false" damping="0" armature="0.0" frictionloss="250"/>
+            <joint name="joint_mobile_forward" pos="-0.21 0 0" axis="0 1 0" type="slide" limited="false" damping="1e10" armature="0.0" frictionloss="1e10"/>
+			<joint name="joint_mobile_side" pos="-0.21 0 0" axis="1 0 0" type="slide" limited="false" damping="1e10" armature="0.0" frictionloss="1e10"/>
+			<joint name="joint_mobile_yaw" pos="-0.21 0 0" axis="0 0 1" type="hinge" limited="false" damping="1e10" armature="0.0" frictionloss="1e10"/>
         </body>
     </worldbody>
 </mujoco>

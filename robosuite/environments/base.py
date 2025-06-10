@@ -384,6 +384,8 @@ class MujocoEnv(metaclass=EnvMeta):
                 value. This is useful if, e.g., you want to grab observations when directly setting simulation states
                 without actually stepping the simulation.
         """
+        self._obs_cache = {}
+        force=True
         for observable in self._observables.values():
             observable.update(timestep=self.model_timestep, obs_cache=self._obs_cache, force=force)
 
@@ -522,6 +524,7 @@ class MujocoEnv(metaclass=EnvMeta):
         """
         Renders to an on-screen window.
         """
+        # import pdb; pdb.set_trace()
         self.viewer.render()
 
     def get_pixel_obs(self):

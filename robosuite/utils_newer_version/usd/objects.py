@@ -59,7 +59,10 @@ class USDObject(abc.ABC):
         self.rgba = rgba
         self.texture_file = texture_file
 
-        self.xform_path = f"/World/Mesh_Xform_{obj_name}"
+        self.obj_name = self.obj_name.replace("-", "m_")
+        self.obj_name = self.obj_name.replace("+", "p_")
+
+        self.xform_path = f"/World/Mesh_Xform_{self.obj_name}"
         self.usd_xform = UsdGeom.Xform.Define(stage, self.xform_path)
 
         # defining ops required by update function
@@ -156,7 +159,10 @@ class USDObject(abc.ABC):
         transformation_mat = utils_module.create_transform_matrix(rotation_matrix=mat, translation_vector=pos).T
         utils_module.set_attr(attr=self.transform_op, value=Gf.Matrix4d(transformation_mat.tolist()), frame=frame)
 
-        # TODO (ajoshi): update visibility in online case
+        # TODO (ajoshi): update visibility for online and offline cases
+        if not frame and not visible:
+            self.update_visibility(False, frame)
+
         if frame is not None:
             if visible and frame - self.last_visible_frame > 1:
                 # non consecutive visible frames
@@ -196,7 +202,7 @@ class USDMesh(USDObject):
 
         self.dataid = dataid
 
-        mesh_path = f"{self.xform_path}/Mesh_{obj_name}"
+        mesh_path = f"{self.xform_path}/Mesh_{self.obj_name}"
         self.usd_mesh = UsdGeom.Mesh.Define(stage, mesh_path)
         self.usd_prim = stage.GetPrimAtPath(mesh_path)
 
@@ -285,7 +291,7 @@ class USDPrimitiveMesh(USDObject):
         self.mesh_config = mesh_config
         self.prim_mesh = self.generate_primitive_mesh()
 
-        mesh_path = f"{self.xform_path}/Mesh_{obj_name}"
+        mesh_path = f"{self.xform_path}/Mesh_{self.obj_name}"
         self.usd_mesh = UsdGeom.Mesh.Define(stage, mesh_path)
         self.usd_prim = stage.GetPrimAtPath(mesh_path)
 

@@ -109,6 +109,7 @@ class MjRenderContext:
 
         # self._markers = []
         # self._overlay = {}
+        self.previous_valid_transform = None
 
         self._set_mujoco_context_and_buffers()
 
@@ -124,16 +125,12 @@ class MjRenderContext:
             del self.con
             self._set_mujoco_context_and_buffers()
 
-    def upload_texture(self, tex_id):
-        """Uploads given texture to the GPU"""
-        self.gl_ctx.make_current()
-        mujoco.mjr_uploadTexture(self.model, self.con, tex_id)
-
     def render(self, width, height, camera_id=None, segmentation=False):
         viewport = mujoco.MjrRect(0, 0, width, height)
 
         # if self.sim.render_callback is not None:
         #     self.sim.render_callback(self.sim, self)
+        # import pdb; pdb.set_trace()
 
         # update width and height of rendering context if necessary
         if width > self.con.offWidth or height > self.con.offHeight:
@@ -146,6 +143,7 @@ class MjRenderContext:
                 self.cam.type = mujoco.mjtCamera.mjCAMERA_FREE
             else:
                 self.cam.type = mujoco.mjtCamera.mjCAMERA_FIXED
+                # self.cam.type = mujoco.mjtCamera.mjCAMERA_FIXED
             self.cam.fixedcamid = camera_id
 
         mujoco.mjv_updateScene(
@@ -175,28 +173,28 @@ class MjRenderContext:
         mujoco.mjr_readPixels(rgb=rgb_img, depth=depth_img, viewport=viewport, con=self.con)
 
         ret_img = rgb_img
-        if segmentation:
-            uint32_rgb_img = rgb_img.astype(np.int32)
-            seg_img = uint32_rgb_img[:, :, 0] + uint32_rgb_img[:, :, 1] * (2**8) + uint32_rgb_img[:, :, 2] * (2**16)
-            seg_img[seg_img >= (self.scn.ngeom + 1)] = 0
-            seg_ids = np.full((self.scn.ngeom + 1, 2), fill_value=-1, dtype=np.int32)
+        # if segmentation:
+        #     uint32_rgb_img = rgb_img.astype(np.int32)
+        #     seg_img = uint32_rgb_img[:, :, 0] + uint32_rgb_img[:, :, 1] * (2**8) + uint32_rgb_img[:, :, 2] * (2**16)
+        #     seg_img[seg_img >= (self.scn.ngeom + 1)] = 0
+        #     seg_ids = np.full((self.scn.ngeom + 1, 2), fill_value=-1, dtype=np.int32)
 
-            for i in range(self.scn.ngeom):
-                geom = self.scn.geoms[i]
-                if geom.segid != -1:
-                    seg_ids[geom.segid + 1, 0] = geom.objtype
-                    seg_ids[geom.segid + 1, 1] = geom.objid
-            ret_img = seg_ids[seg_img]
+        #     for i in range(self.scn.ngeom):
+        #         geom = self.scn.geoms[i]
+        #         if geom.segid != -1:
+        #             seg_ids[geom.segid + 1, 0] = geom.objtype
+        #             seg_ids[geom.segid + 1, 1] = geom.objid
+        #     ret_img = seg_ids[seg_img]
 
-        if depth:
-            return (ret_img, depth_img)
-        else:
-            return ret_img
+        # if depth:
+        #     return (ret_img, depth_img)
+        # else:
+        return ret_img
 
     def upload_texture(self, tex_id):
         """Uploads given texture to the GPU."""
         self.gl_ctx.make_current()
-        mujoco.mjr_uploadTexture(self.model, self.con, tex_id)
+        mujoco.mjr_uploadTexture(self.model._model, self.con, tex_id)
 
     def __del__(self):
         # free mujoco rendering context and GL rendering context
@@ -284,12 +282,6 @@ class MjModel(metaclass=_MjModelMeta):
 
         # make useful mappings such as _body_name2id and _body_id2name
         self.make_mappings()
-
-    @classmethod
-    def from_xml_path(cls, xml_path):
-        """Creates an MjModel instance from a path to a model XML file."""
-        model_ptr = _get_model_ptr_from_xml(xml_path=xml_path)
-        return cls(model_ptr)
 
     def __del__(self):
         # free mujoco model
@@ -428,12 +420,16 @@ class MjModel(metaclass=_MjModelMeta):
 
     def camera_id2name(self, id):
         """Get camera name from camera id."""
+        if id == -1:
+            return "free"
         if id not in self._camera_id2name:
             raise ValueError("No camera with id %d exists." % id)
         return self._camera_id2name[id]
 
     def camera_name2id(self, name):
         """Get camera id from  camera name."""
+        if name == "free":
+            return -1
         if name not in self._camera_name2id:
             raise ValueError(
                 'No "camera" with name %s exists. Available "camera" names = %s.' % (name, self.camera_names)
@@ -1008,7 +1004,7 @@ class MjData(metaclass=_MjDataMeta):
 
     def set_joint_qpos(self, name, value):
         """
-        Set the velocities of a joint using name.
+        Set the position of a joint using name.
 
         Args:
             name (str): The name of a joint
@@ -1042,7 +1038,7 @@ class MjData(metaclass=_MjDataMeta):
 
     def set_joint_qvel(self, name, value):
         """
-        Set the velocities of a mjo using name.
+        Set the velocities of a joint using name.
 
         Args:
             name (str): The name of a joint
@@ -1075,6 +1071,7 @@ class MjSim:
 
         # offscreen render context object
         self._render_context_offscreen = None
+        self.previous_valid_camera_transform = None
 
     @classmethod
     def from_xml_string(cls, xml):
@@ -1145,7 +1142,9 @@ class MjSim:
             self._render_context_offscreen.render(
                 width=width, height=height, camera_id=camera_id, segmentation=segmentation
             )
-            return self._render_context_offscreen.read_pixels(width, height, depth=depth, segmentation=segmentation)
+            pixels = self._render_context_offscreen.read_pixels(width, height, depth=depth, segmentation=segmentation)
+            
+            return pixels
 
     def add_render_context(self, render_context):
         assert render_context.offscreen
