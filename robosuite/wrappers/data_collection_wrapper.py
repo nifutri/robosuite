@@ -36,9 +36,11 @@ class DataCollectionWrapper(Wrapper):
 
         # how often to save simulation state, in terms of environment steps
         self.collect_freq = collect_freq
+        self.collect_freq = 20
 
         # how frequently to dump data to disk, in terms of environment steps
         self.flush_freq = flush_freq
+        self.flush_freq = 100
 
         if not os.path.exists(directory):
             print("DataCollectionWrapper: making new directory at {}".format(directory))
@@ -196,6 +198,8 @@ class DataCollectionWrapper(Wrapper):
             self._flush()
 
         return ret
+
+    
 
     def close(self):
         """

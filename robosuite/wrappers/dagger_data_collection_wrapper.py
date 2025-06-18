@@ -31,6 +31,9 @@ class DAggerDataCollectionWrapper(Wrapper):
 
         # in-memory cache for simulation states and action info
         self.states = []
+        self.dones = []
+        self.rewards = []
+        self.observations = []
         self.action_infos = []  # stores information about actions taken
         self.successful = False  # stores success state of demonstration
 
@@ -134,13 +137,19 @@ class DAggerDataCollectionWrapper(Wrapper):
             env_name = self.env.__class__.__name__
         np.savez(
             state_path,
+            observations = self.observations,
             states=np.array(self.states),
             action_infos=self.action_infos,
             successful=self.successful,
+            dones=np.array(self.dones),
+            rewards=np.array(self.rewards),
             env=env_name,
         )
+        self.observations = []
         self.states = []
         self.action_infos = []
+        self.dones = []
+        self.rewards = []
         self.successful = False
 
     def reset(self):
@@ -170,7 +179,7 @@ class DAggerDataCollectionWrapper(Wrapper):
                 - (bool) whether the current episode is completed or not
                 - (dict) misc information
         """
-        ret = super().step(action)
+        ret = super().step(action) #observations, reward, done, info
         self.t += 1
 
         # on the first time step, make directories for logging
@@ -181,6 +190,14 @@ class DAggerDataCollectionWrapper(Wrapper):
         if self.t % self.collect_freq == 0:
             state = self.env.sim.get_state().flatten()
             self.states.append(state)
+
+            # pdb.set_trace()
+            # collect the current observations
+            obs = self.env.env._get_observations()
+            # camera_names =  [ 'robot0_agentview_left_image', 'robot0_agentview_right_image', 'robot0_eye_in_hand_image']
+            # img_obs = [np.array(obs[camera_name]) for camera_name in camera_names]
+            # img_obs = np.array(img_obs)
+            self.observations.append(obs)
 
             info = {}
             info["actions"] = np.array(action)
@@ -193,6 +210,11 @@ class DAggerDataCollectionWrapper(Wrapper):
                 info["actions_abs"] = np.array(step_info["action_abs"])
 
             self.action_infos.append(info)
+
+            done = ret[2]
+            self.dones.append(done)
+            reward = ret[1]
+            self.rewards.append(reward)
 
         # check if the demonstration is successful
         if self.env._check_success():

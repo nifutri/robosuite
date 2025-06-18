@@ -151,6 +151,10 @@ class RobotEnv(MujocoEnv):
         renderer_config=None,
         seed=None,
     ):
+        
+        camera_heights=256,
+        camera_widths=256,
+
         # First, verify that correct number of robots are being inputted
         self.env_configuration = env_configuration
         self._check_robot_configuration(robots)
