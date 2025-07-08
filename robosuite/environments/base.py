@@ -425,6 +425,12 @@ class MujocoEnv(metaclass=EnvMeta):
                 continue
             observations[modality] = np.concatenate(obs, axis=-1)
 
+        camera_names = ['robot0_agentview_left_image', 'robot0_agentview_right_image', 'robot0_eye_in_hand_image']
+        for cam_name in camera_names:
+            if cam_name not in observations:
+                partial_name = cam_name.split("_image")[0]
+                observations[cam_name] = self.sim.render(camera_name=partial_name, width=256, height=256)
+
         return observations
 
     def step(self, action):

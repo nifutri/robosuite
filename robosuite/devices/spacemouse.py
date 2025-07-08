@@ -158,6 +158,9 @@ class SpaceMouse(Device):
 
         self.single_click_and_hold = False
 
+        # curreng gripper state
+        self.current_gripper_state = -1
+
         self._control = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self._reset_state = 0
         self.rotation = np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]])
@@ -197,6 +200,11 @@ class SpaceMouse(Device):
         print_command("s", "switch active arm (if multi-armed robot)")
         print_command("=", "switch active robot (if multi-robot environment)")
         print("")
+
+    def set_env(self, env):
+        self.env = env
+        self.all_robot_arms = [robot.arms for robot in self.env.robots]
+        self.num_robots = len(self.all_robot_arms)
 
     def _reset_internal_state(self):
         """
@@ -304,14 +312,19 @@ class SpaceMouse(Device):
 
                     # press left button
                     if d[1] == 1:
-                        t_click = time.time()
-                        elapsed_time = t_click - t_last_click
-                        t_last_click = t_click
-                        self.single_click_and_hold = True
+                        if self.single_click_and_hold is True:
+                            # if this is the first click, reset the timer
+                            t_last_click = time.time()
+                            self.single_click_and_hold = False
+                        else:
+                            t_click = time.time()
+                            elapsed_time = t_click - t_last_click
+                            t_last_click = t_click
+                            self.single_click_and_hold = True
 
                     # release left button
-                    if d[1] == 0:
-                        self.single_click_and_hold = False
+                    # if d[1] == 0:
+                    #     self.single_click_and_hold = False
 
                     # right button is for reset
                     if d[1] == 2:

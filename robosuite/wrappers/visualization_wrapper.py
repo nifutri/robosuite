@@ -16,7 +16,8 @@ from robosuite.wrappers import Wrapper
 DEFAULT_INDICATOR_SITE_CONFIG = {
     "type": "sphere",
     "size": [0.03],
-    "rgba": [1, 0, 0, 0.5],
+    # "rgba": [1, 0, 0, 0.5],
+    "rgba": [1, 0, 0, 0.0],
 }
 
 
@@ -53,20 +54,21 @@ class VisualizationWrapper(Wrapper):
         ), "Cannot use camera segmentations with visualization wrapper!"
 
         # Standardize indicator configs
+        self.indicator_configs = None
+        # indicator_configs = 'default'
+        if indicator_configs is not None:
+            self.indicator_configs = []
+            if type(indicator_configs) in {str, dict}:
+                indicator_configs = [indicator_configs]
+            for i, indicator_config in enumerate(indicator_configs):
+                if indicator_config == "default":
+                    indicator_config = deepcopy(DEFAULT_INDICATOR_SITE_CONFIG)
+                    indicator_config["name"] = f"indicator{i}"
+                # Make sure name attribute is specified
+                assert "name" in indicator_config, "Name must be specified for all indicator object configurations!"
+                # Add this configuration to the internal array
+                self.indicator_configs.append(indicator_config)
         # self.indicator_configs = None
-        # if indicator_configs is not None:
-        #     self.indicator_configs = []
-        #     if type(indicator_configs) in {str, dict}:
-        #         indicator_configs = [indicator_configs]
-        #     for i, indicator_config in enumerate(indicator_configs):
-        #         if indicator_config == "default":
-        #             indicator_config = deepcopy(DEFAULT_INDICATOR_SITE_CONFIG)
-        #             indicator_config["name"] = f"indicator{i}"
-        #         # Make sure name attribute is specified
-        #         assert "name" in indicator_config, "Name must be specified for all indicator object configurations!"
-        #         # Add this configuration to the internal array
-        #         self.indicator_configs.append(indicator_config)
-        self.indicator_configs = []
 
         # Create internal dict to store visualization settings (set to True by default)
         self._vis_settings = {vis: True for vis in self.env._visualizations}
@@ -172,6 +174,7 @@ class VisualizationWrapper(Wrapper):
         Args:
             xml (string): MJCF model in xml format, for the current simulation to be loaded
         """
+        # import pdb; pdb.set_trace()
         if self.indicator_configs is not None:
             root = ET.fromstring(xml)
             worldbody = root.find("worldbody")

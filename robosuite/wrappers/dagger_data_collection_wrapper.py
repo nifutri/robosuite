@@ -81,6 +81,19 @@ class DAggerDataCollectionWrapper(Wrapper):
         # ValueError: Error: eigenvalues of mesh inertia violate A + B >= C
         # switching to self.env.sim.model.get_xml() does not create this issue
         self._current_task_instance_xml = self.env.sim.model.get_xml()
+
+        # import pdb; pdb.set_trace()
+        #  'gripper0_right_grip_site', 'gripper0_right_grip_site_cylinder',
+        # get xml string for gripper sites
+        # self.
+        indicators = ['gripper0_right_grip_site', 'gripper0_right_grip_site_cylinder']
+        for indicator_name in indicators:
+            site_id = self.env.sim.model.site_name2id(indicator_name)
+            self.env.sim.model.site_rgba[site_id] = [1, 0, 0, 0.0]
+
+        self._current_task_instance_xml = self.env.sim.model.get_xml()
+
+
         self._current_task_instance_state = np.array(self.env.sim.get_state().flatten())
 
         # trick for ensuring that we can play MuJoCo demonstrations back
