@@ -36,7 +36,7 @@ class DataCollectionWrapper(Wrapper):
 
         # how often to save simulation state, in terms of environment steps
         self.collect_freq = collect_freq
-        self.collect_freq = 20
+        # self.collect_freq = 20
 
         # how frequently to dump data to disk, in terms of environment steps
         self.flush_freq = flush_freq
